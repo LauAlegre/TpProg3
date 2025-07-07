@@ -39,17 +39,22 @@ public class SecuenciaMaquinas {
                 mejorCantidadPiezas = produccionActual;
                 mejorSolucion = new ArrayList<>(actuales);
             }
-            return;
+
         }
 
-        if (produccionActual > cantPiezas || actuales.size() >= mejorPuestaFun) return;
 
         for (Maquina m : maquinasDisponibles) {
-            actuales.add(m);
-            encontrarSecuencia(produccionActual + m.getProduccion(), actuales);
-            actuales.remove(actuales.size() - 1);
+            int nuevaProduccion = produccionActual + m.getProduccion();
+
+
+            if (nuevaProduccion <= cantPiezas && actuales.size() + 1 < mejorPuestaFun) {
+                actuales.add(m);
+                encontrarSecuencia(nuevaProduccion, actuales);
+                actuales.remove(actuales.size() - 1);
+            }
         }
     }
+
 
     private void mostrarResultadoBacktracking() {
         System.out.println("\n Backtracking:");
@@ -80,14 +85,18 @@ public class SecuenciaMaquinas {
 
         while (produccionActual < cantPiezas && !candidatos.isEmpty()) {
             Maquina maquina = seleccionar(candidatos);
-            candidatosConsiderados++;
 
             int piezasRestantes = cantPiezas - produccionActual;
             int veces = piezasRestantes / maquina.getProduccion();
 
-            for (int i = 0; i < veces; i++) {
-                solucion.add(maquina);
-                produccionActual += maquina.getProduccion();
+            if(veces == 0){
+                candidatosConsiderados++;
+            }else {
+                for (int i = 0; i < veces; i++) {
+                    solucion.add(maquina);
+                    produccionActual += maquina.getProduccion();
+                    candidatosConsiderados++; // Cada vez que selecciono, incremento
+                }
             }
 
             candidatos.remove(maquina);
@@ -101,13 +110,17 @@ public class SecuenciaMaquinas {
     }
 
     private void mostrarResultadoGreedy(List<Maquina> solucion, int produccion, int candidatos) {
-        System.out.println("\n Greedy:");
-        System.out.print("Secuencia: ");
-        for (Maquina m : solucion) {
-            System.out.print(m.getNombre() + " ");
+        System.out.println("\nGreedy:");
+        if (produccion != cantPiezas) {
+            System.out.println("No se encontró una solución completa.");
+        } else {
+            System.out.print("Secuencia: ");
+            for (Maquina m : solucion) {
+                System.out.print(m.getNombre() + " ");
+            }
+            System.out.println("\nPiezas producidas: " + produccion);
+            System.out.println("Activaciones: " + solucion.size());
         }
-        System.out.println("\nPiezas producidas: " + produccion);
-        System.out.println("Activaciones: " + solucion.size());
         System.out.println("Candidatos considerados: " + candidatos);
     }
 }
